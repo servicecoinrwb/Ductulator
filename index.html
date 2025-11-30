@@ -144,7 +144,7 @@
                         <div class="flex gap-2 items-center">
                             <button onclick="setFriction(0.08)" class="text-xs bg-slate-100 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 border border-transparent px-2 py-1 rounded transition-colors" title="Standard Return">0.08</button>
                             <button onclick="setFriction(0.1)" class="text-xs bg-slate-100 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 border border-transparent px-2 py-1 rounded transition-colors" title="Standard Supply">0.10</button>
-                            <input type="number" id="friction-input" value="0.1" step="0.01" class="flex-1 bg-slate-50 border border-slate-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-right" oninput="updateCalculations()">
+                            <input type="number" id="friction-input" value="0.1" step="0.001" class="flex-1 bg-slate-50 border border-slate-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-right" oninput="updateCalculations()">
                         </div>
                     </div>
 
@@ -246,6 +246,79 @@
                                     <input type="text" id="rect-side-2" readonly class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold cursor-not-allowed">
                                     <span class="absolute right-3 top-2.5 text-slate-400 text-sm">in</span>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Friction Rate Calculator Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-semibold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-calculator text-blue-500"></i> Friction Rate Builder
+                        </h2>
+                        <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded border border-blue-100 font-medium">Manual D</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Step 1: TEL -->
+                        <div class="space-y-3">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-1">1. Effective Length (TEL)</h3>
+                            
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[10px] text-slate-500 mb-1">Supply Run (ft)</label>
+                                    <input type="number" id="tel-supply" value="0" class="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="calculateFR()">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-slate-500 mb-1">Return Run (ft)</label>
+                                    <input type="number" id="tel-return" value="0" class="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="calculateFR()">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-500 mb-1">Total Fittings Eq. Length (ft)</label>
+                                <div class="relative">
+                                    <input type="number" id="tel-fittings" value="0" class="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="calculateFR()">
+                                    <div class="absolute right-2 top-1.5 text-[10px] text-slate-400 cursor-help" title="Elbows ≈ 30ft, Takeoffs ≈ 35ft, Boots ≈ 10ft. Sum all fittings in longest run.">
+                                        <i class="fa-regular fa-circle-question"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center bg-slate-50 border border-slate-100 px-2 py-1.5 rounded text-xs">
+                                <span class="text-slate-500">Calculated TEL:</span>
+                                <span id="res-tel" class="font-bold text-slate-700">0 ft</span>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: ASP & Result -->
+                        <div class="space-y-3">
+                             <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-1">2. Static Pressure (ASP)</h3>
+                             
+                             <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[10px] text-slate-500 mb-1">Blower ESP (IWC)</label>
+                                    <input type="number" id="asp-esp" value="0.50" step="0.01" class="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="calculateFR()">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-slate-500 mb-1">Device Loss (IWC)</label>
+                                    <input type="number" id="asp-loss" value="0.30" step="0.01" class="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="calculateFR()">
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center bg-slate-50 border border-slate-100 px-2 py-1.5 rounded text-xs mb-2">
+                                <span class="text-slate-500">Available Static:</span>
+                                <span id="res-asp" class="font-bold text-slate-700">0.20"</span>
+                            </div>
+
+                            <!-- Result Box -->
+                            <div class="bg-blue-600 rounded-lg p-3 text-white flex items-center justify-between shadow-md">
+                                <div>
+                                    <p class="text-[10px] text-blue-200 uppercase tracking-wide">Friction Rate</p>
+                                    <p class="text-2xl font-bold leading-none" id="res-fr">0.00</p>
+                                </div>
+                                <button onclick="applyFR(this)" class="bg-white text-blue-600 text-xs font-bold px-3 py-1.5 rounded hover:bg-blue-50 transition-colors flex items-center gap-1">
+                                    Apply <i class="fa-solid fa-arrow-up"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -647,6 +720,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             setMode('D');
             updateCalculations();
+            calculateFR(); // Initialize new calc
             setupModal();
         });
         
@@ -852,6 +926,62 @@
             const vis = document.getElementById('rect-visual');
             vis.style.width = (resultSide > inputSide ? 120 : 120 * (resultSide/inputSide)) + 'px';
             vis.style.height = (inputSide > resultSide ? 80 : 80 * (inputSide/resultSide)) + 'px';
+        }
+
+        // --- NEW CALCULATOR FUNCTIONS ---
+        window.calculateFR = function() {
+            const s = parseFloat(document.getElementById('tel-supply').value) || 0;
+            const r = parseFloat(document.getElementById('tel-return').value) || 0;
+            const f = parseFloat(document.getElementById('tel-fittings').value) || 0;
+            const tel = s + r + f;
+            
+            document.getElementById('res-tel').innerText = tel + ' ft';
+
+            const esp = parseFloat(document.getElementById('asp-esp').value) || 0;
+            const loss = parseFloat(document.getElementById('asp-loss').value) || 0;
+            const asp = Math.max(0, esp - loss);
+            
+            document.getElementById('res-asp').innerText = asp.toFixed(2) + '"';
+
+            let fr = 0;
+            if (tel > 0) {
+                fr = (asp * 100) / tel;
+            }
+            
+            document.getElementById('res-fr').innerText = fr.toFixed(3);
+        }
+
+        window.applyFR = function(btn) {
+            const s = parseFloat(document.getElementById('tel-supply').value) || 0;
+            const r = parseFloat(document.getElementById('tel-return').value) || 0;
+            const f = parseFloat(document.getElementById('tel-fittings').value) || 0;
+            const tel = s + r + f;
+            const esp = parseFloat(document.getElementById('asp-esp').value) || 0;
+            const loss = parseFloat(document.getElementById('asp-loss').value) || 0;
+            const asp = Math.max(0, esp - loss);
+            
+            let fr = 0;
+            if (tel > 0) {
+                fr = (asp * 100) / tel;
+            }
+
+            if(fr > 0) {
+                const val = fr.toFixed(3);
+                document.getElementById('friction-input').value = val;
+                window.setFriction(val);
+                
+                // Visual feedback
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Applied';
+                btn.classList.add('bg-green-100', 'text-green-700');
+                btn.classList.remove('bg-white', 'text-blue-600');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('bg-green-100', 'text-green-700');
+                    btn.classList.add('bg-white', 'text-blue-600');
+                }, 1500);
+            }
         }
 
     </script>
