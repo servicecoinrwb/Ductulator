@@ -402,8 +402,46 @@
                                     </li>
                                 </ul>
                             </div>
-
                         </div>
+
+                        <!-- New Section: The Friction Rate Calculation (Longest Run) -->
+                        <div class="mt-6 bg-slate-100 p-5 rounded-lg border border-slate-200">
+                            <div class="flex items-center gap-2 mb-3">
+                                <i class="fa-solid fa-calculator text-blue-600"></i>
+                                <h4 class="font-bold text-slate-800">Pro Tip: Calculating Correct Friction Rate</h4>
+                            </div>
+                            <p class="text-xs text-slate-500 mb-4 italic">Don't guess! Calculate the specific friction rate for your layout using the "Longest Run" method (Manual D).</p>
+                            
+                            <div class="grid md:grid-cols-3 gap-6 text-sm">
+                                <div class="space-y-2">
+                                    <h5 class="font-bold text-slate-700 border-b border-slate-300 pb-1">1. Find Total Effective Length (TEL)</h5>
+                                    <p class="text-slate-600 text-xs">Measure the path to the farthest supply register and farthest return grill. Add them together.</p>
+                                    <p class="text-slate-600 text-xs"><strong>Add Fitting Equivalent Lengths:</strong> Don't forget to add equivalent feet for every elbow, takeoff, and boot (e.g., 1 elbow ≈ 30ft).</p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <h5 class="font-bold text-slate-700 border-b border-slate-300 pb-1">2. Determine Available Static (ASP)</h5>
+                                    <p class="text-slate-600 text-xs">Start with Blower capability (e.g., 0.50" WC).</p>
+                                    <p class="text-slate-600 text-xs">Subtract losses for: A/C Coil, Filter, Dampers, and Grills.</p>
+                                    <div class="bg-white p-2 rounded border border-slate-200 text-xs font-mono">
+                                        0.50 (Blower)<br>
+                                        - 0.20 (Coil)<br>
+                                        - 0.10 (Filter)<br>
+                                        = 0.20" ASP
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <h5 class="font-bold text-slate-700 border-b border-slate-300 pb-1">3. The Formula</h5>
+                                    <p class="text-slate-600 text-xs">Calculate the Friction Rate (FR) to enter in the slider above:</p>
+                                    <div class="bg-blue-50 p-2 rounded border border-blue-100 text-center font-bold text-blue-800 my-2">
+                                        FR = (ASP × 100) / TEL
+                                    </div>
+                                    <p class="text-slate-500 text-[10px]">Example: (0.20 × 100) / 400ft = <strong>0.05</strong> Friction Rate.</p>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                     
                     <!-- Footer -->
