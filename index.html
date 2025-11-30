@@ -128,6 +128,9 @@
                             <input type="number" id="cfm-input" value="1000" class="flex-1 bg-slate-50 border border-slate-300 rounded px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="syncSlider(this.value)">
                             <button onclick="adjustCFM(50)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded text-slate-600 text-sm">+50</button>
                         </div>
+                        <p class="text-[10px] text-slate-400 mt-1.5 flex items-center gap-1">
+                            <i class="fa-solid fa-circle-info"></i> Rule of thumb: ~400 CFM per Ton (e.g. 2 Ton = 800 CFM)
+                        </p>
                     </div>
 
                     <hr class="border-slate-100">
@@ -513,6 +516,85 @@
                                     </div>
                                     <p class="text-slate-500 text-[10px]">Example: (0.20 × 100) / 400ft = <strong>0.05</strong> Friction Rate.</p>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Expanded Guide: Determining Total Fittings Equivalent Length -->
+                        <div class="mt-6 bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+                            <div class="flex items-center gap-2 mb-3">
+                                <div class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">3</div>
+                                <h4 class="font-bold text-slate-800">Determining Total Fittings Equivalent Length</h4>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-4">Determining the Total Fittings Equivalent Length is the most critical step in calculating a precise Friction Rate. If you guess this number, your entire duct sizing calculation could be wrong.</p>
+                            
+                            <h5 class="font-bold text-slate-700 mt-4 mb-2">1. Identify the "Critical Path" (Longest Run)</h5>
+                            <p class="text-xs text-slate-600 mb-2">You don't add up every fitting in the entire house. You only look at the single path that creates the most resistance. Usually, this is the run to the farthest supply register combined with the run from the farthest return grille. Imagine a single molecule of air traveling from the return grille, through the furnace, and out to that farthest supply register. Count only the fittings that molecule hits.</p>
+
+                            <h5 class="font-bold text-slate-700 mt-4 mb-2">2. Assign "Equivalent Feet" to Each Fitting</h5>
+                            <p class="text-xs text-slate-600 mb-2">Every time air has to turn or squeeze, it creates friction. We convert that friction into "feet of straight pipe" to make the math easier. Here are the standard "Rule of Thumb" values used by most pros (based on metal ducts):</p>
+                            
+                            <table class="w-full text-xs text-left border-collapse border border-slate-200 mb-4">
+                                <thead class="bg-slate-50 text-slate-600">
+                                    <tr>
+                                        <th class="p-2 border border-slate-200">Fitting Type</th>
+                                        <th class="p-2 border border-slate-200">Equivalent Length</th>
+                                        <th class="p-2 border border-slate-200">Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-slate-600">
+                                    <tr>
+                                        <td class="p-2 border border-slate-200 font-semibold">Plenum Takeoff</td>
+                                        <td class="p-2 border border-slate-200">35 ft</td>
+                                        <td class="p-2 border border-slate-200">Where the duct starts at the unit.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2 border border-slate-200 font-semibold">90° Elbow</td>
+                                        <td class="p-2 border border-slate-200">30 ft</td>
+                                        <td class="p-2 border border-slate-200">A sharp turn adds a lot of resistance.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2 border border-slate-200 font-semibold">45° Elbow</td>
+                                        <td class="p-2 border border-slate-200">15 ft</td>
+                                        <td class="p-2 border border-slate-200">Gentler turns add less resistance.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2 border border-slate-200 font-semibold">Boot / Register Box</td>
+                                        <td class="p-2 border border-slate-200">35 ft</td>
+                                        <td class="p-2 border border-slate-200">The transition at the floor/ceiling.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2 border border-slate-200 font-semibold">Flex Bend</td>
+                                        <td class="p-2 border border-slate-200">30 ft</td>
+                                        <td class="p-2 border border-slate-200">A sloppy 90° turn in flex duct.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <h5 class="font-bold text-slate-700 mt-4 mb-2">3. The Calculation Example</h5>
+                            <p class="text-xs text-slate-600 mb-2">Let's say your "Critical Path" (farthest run) looks like this:</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-600 mb-2">
+                                <div class="bg-slate-50 p-3 rounded border border-slate-100">
+                                    <strong class="block text-slate-700 mb-1">Return Side:</strong>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li>1 Filter Grille (accounted in Device Loss)</li>
+                                        <li>1 Return Box (35 ft)</li>
+                                        <li>1 90° Elbow (30 ft) to furnace</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-slate-50 p-3 rounded border border-slate-100">
+                                    <strong class="block text-slate-700 mb-1">Supply Side:</strong>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li>1 Takeoff (35 ft) from plenum</li>
+                                        <li>2 90° Elbows (30 ft + 30 ft) around beam</li>
+                                        <li>1 Boot (35 ft) at register</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-blue-50 p-3 rounded border border-blue-100 text-center text-sm font-bold text-blue-800 mt-2">
+                                Total: 35 + 30 + 35 + 30 + 30 + 35 = <span class="text-xl">195 ft</span>
+                                <p class="text-[10px] font-normal text-blue-600 mt-1">Enter "195" into the "Total Fittings Eq. Length" box above.</p>
                             </div>
                         </div>
 
