@@ -37,6 +37,13 @@
         .auth-hidden {
             display: none;
         }
+        /* Modal Transitions */
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        body.modal-active {
+            overflow: hidden;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
@@ -55,6 +62,11 @@
             </div>
             
             <div class="flex items-center gap-4">
+                <!-- Guide Button -->
+                <button id="guide-btn" class="text-slate-500 hover:text-blue-600 transition-colors flex items-center gap-1.5 text-sm font-medium px-2 py-1 rounded hover:bg-slate-50">
+                    <i class="fa-regular fa-circle-question text-lg"></i> <span class="hidden sm:inline">Guide</span>
+                </button>
+
                 <!-- Auth Buttons -->
                 <button id="login-btn" class="bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
                     <i class="fa-brands fa-google text-red-500"></i> Sign In
@@ -289,6 +301,121 @@
         </div>
     </main>
 
+    <!-- GUIDES & SCENARIOS MODAL -->
+    <div id="guide-modal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <!-- Background backdrop -->
+        <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" id="guide-backdrop"></div>
+
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                
+                <div class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-3xl border border-slate-200">
+                    
+                    <!-- Header -->
+                    <div class="bg-white px-4 py-4 sm:px-6 border-b border-slate-100 flex justify-between items-center">
+                        <h3 class="text-lg font-bold leading-6 text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-book-open text-blue-600"></i>
+                            User Guide & Scenarios
+                        </h3>
+                        <button type="button" id="close-guide-btn" class="text-slate-400 hover:text-slate-600 transition-colors">
+                            <i class="fa-solid fa-xmark text-xl"></i>
+                        </button>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="px-4 py-5 sm:p-6 max-h-[70vh] overflow-y-auto bg-slate-50/50">
+                        
+                        <!-- Quick Start -->
+                        <div class="mb-8">
+                            <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-3 border-b border-slate-200 pb-1">Quick Start</h4>
+                            <ol class="list-decimal list-inside space-y-2 text-sm text-slate-600">
+                                <li>Select <strong>Residential (Manual D)</strong> or <strong>Commercial (Manual N)</strong> mode.</li>
+                                <li>Drag the slider or type to set your <strong>Air Volume (CFM)</strong>.</li>
+                                <li>Set <strong>Friction Rate</strong> (Standard: 0.1 for Supply, 0.08 for Return).</li>
+                                <li>Read the <strong>Recommended Round Diameter</strong> in the blue card.</li>
+                                <li>Use the <strong>Rectangular Sizing</strong> section to convert round pipe to duct dimensions (e.g., enter 8" height to find width).</li>
+                            </ol>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            
+                            <!-- Scenario 1: Furnace Changeout -->
+                            <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <div class="bg-amber-100 text-amber-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">1</div>
+                                    <h4 class="font-bold text-slate-800">Check Existing Return Air</h4>
+                                </div>
+                                <p class="text-xs text-slate-500 mb-4 italic">Scenario: You are installing a new furnace. Is the old return drop big enough?</p>
+                                
+                                <ul class="space-y-3 text-sm text-slate-700">
+                                    <li class="flex gap-2">
+                                        <i class="fa-solid fa-check text-green-500 mt-1"></i>
+                                        <span><strong>Step 1:</strong> Determine the new furnace's required CFM (e.g., 3-Ton = 1200 CFM). Input this into the slider.</span>
+                                    </li>
+                                    <li class="flex gap-2">
+                                        <i class="fa-solid fa-check text-green-500 mt-1"></i>
+                                        <span><strong>Step 2:</strong> Set Friction Rate to <strong>0.08</strong> (Standard for Returns).</span>
+                                    </li>
+                                    <li class="flex gap-2">
+                                        <i class="fa-solid fa-check text-green-500 mt-1"></i>
+                                        <span><strong>Step 3:</strong> Note the Round Size results.</span>
+                                    </li>
+                                    <li class="flex gap-2">
+                                        <i class="fa-solid fa-check text-green-500 mt-1"></i>
+                                        <span><strong>Step 4:</strong> In Rectangular Sizing, enter the measurement of one side of the existing drop (e.g., 24").</span>
+                                    </li>
+                                    <li class="flex gap-2">
+                                        <i class="fa-solid fa-arrow-right text-blue-500 mt-1"></i>
+                                        <span><strong>Result:</strong> If the calculated second side is <strong>larger</strong> than your actual drop depth, the existing drop is too small and must be replaced to prevent motor failure.</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Scenario 2: Sizing Supply -->
+                            <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <div class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">2</div>
+                                    <h4 class="font-bold text-slate-800">Sizing New Supply Trunk</h4>
+                                </div>
+                                <p class="text-xs text-slate-500 mb-4 italic">Scenario: Building a main trunk line for a 1000 CFM system with limited headroom.</p>
+                                
+                                <ul class="space-y-3 text-sm text-slate-700">
+                                    <li class="flex gap-2">
+                                        <i class="fa-solid fa-check text-green-500 mt-1"></i>
+                                        <span><strong>Step 1:</strong> Set Volume to <strong>1000 CFM</strong>.</span>
+                                    </li>
+                                    <li class="flex gap-2">
+                                        <i class="fa-solid fa-check text-green-500 mt-1"></i>
+                                        <span><strong>Step 2:</strong> Set Friction Rate to <strong>0.1</strong> (Standard for Supply).</span>
+                                    </li>
+                                    <li class="flex gap-2">
+                                        <i class="fa-solid fa-check text-green-500 mt-1"></i>
+                                        <span><strong>Step 3:</strong> Check the <strong>Velocity Gauge</strong>. If it's green (Optimal), proceed. If red, lower friction or increase size.</span>
+                                    </li>
+                                    <li class="flex gap-2">
+                                        <i class="fa-solid fa-check text-green-500 mt-1"></i>
+                                        <span><strong>Step 4:</strong> Measure max available height (e.g., 8"). Enter <strong>8</strong> into "Side 1".</span>
+                                    </li>
+                                    <li class="flex gap-2">
+                                        <i class="fa-solid fa-arrow-right text-blue-500 mt-1"></i>
+                                        <span><strong>Result:</strong> The "Side 2" box tells you the required width (e.g., 22"). Build a <strong>22" x 8"</strong> trunk.</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div class="bg-slate-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-slate-100">
+                        <button type="button" id="close-guide-footer-btn" class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto transition-colors">Got it</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer class="max-w-6xl mx-auto px-4 py-8 text-center text-slate-400 text-sm">
         <p>&copy; 2023 Pro Ductulator. Calculations based on standard ASHRAE formulas.</p>
     </footer>
@@ -481,7 +608,32 @@
         document.addEventListener('DOMContentLoaded', () => {
             setMode('D');
             updateCalculations();
+            setupModal();
         });
+        
+        // Modal Logic
+        function setupModal() {
+            const modal = document.getElementById('guide-modal');
+            const openBtn = document.getElementById('guide-btn');
+            const closeBtn = document.getElementById('close-guide-btn');
+            const footerCloseBtn = document.getElementById('close-guide-footer-btn');
+            const backdrop = document.getElementById('guide-backdrop');
+            
+            function openModal() {
+                modal.classList.remove('hidden');
+                document.body.classList.add('modal-active');
+            }
+            
+            function closeModal() {
+                modal.classList.add('hidden');
+                document.body.classList.remove('modal-active');
+            }
+            
+            openBtn.addEventListener('click', openModal);
+            closeBtn.addEventListener('click', closeModal);
+            footerCloseBtn.addEventListener('click', closeModal);
+            backdrop.addEventListener('click', closeModal);
+        }
 
         // Mode Switching
         window.setMode = function(mode) {
