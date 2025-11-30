@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Ductulator | Manual D & N</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
+        .result-card {
+            transition: all 0.3s ease;
+        }
+        /* Auth UI Transitions */
+        .auth-hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                    <i class="fa-solid fa-wind"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl tracking-tight text-slate-900">Pro Ductulator</h1>
+                    <p class="text-xs text-slate-500 font-medium">Residential & Commercial Sizing</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <!-- Auth Buttons -->
+                <button id="login-btn" class="bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                    <i class="fa-brands fa-google text-red-500"></i> Sign In
+                </button>
+                
+                <div id="user-profile" class="hidden flex items-center gap-3">
+                    <div class="text-right hidden sm:block">
+                        <p id="user-name" class="text-sm font-semibold text-slate-800">User</p>
+                        <p class="text-xs text-slate-500">Pro Member</p>
+                    </div>
+                    <img id="user-avatar" src="" alt="Profile" class="w-9 h-9 rounded-full border border-slate-200">
+                    <button id="logout-btn" class="text-slate-400 hover:text-red-500 transition-colors" title="Sign Out">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+
+                <button onclick="window.print()" class="text-slate-400 hover:text-blue-600 transition-colors ml-2 hidden sm:block">
+                    <i class="fa-solid fa-print text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- CONTROLS COLUMN -->
+            <div class="lg:col-span-5 space-y-6">
+                
+                <!-- Application Mode -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-1">
+                    <div class="grid grid-cols-2 gap-1">
+                        <button onclick="setMode('D')" id="btn-mode-d" class="py-2.5 px-4 rounded-lg text-sm transition-all duration-200 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-house"></i> Residential (Manual D)
+                        </button>
+                        <button onclick="setMode('N')" id="btn-mode-n" class="py-2.5 px-4 rounded-lg text-sm transition-all duration-200 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-building"></i> Commercial (Manual N)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Input Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
+                    <h2 class="font-semibold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-blue-500"></i> Design Parameters
+                    </h2>
+
+                    <!-- CFM Input -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-sm font-medium text-slate-700">Air Volume (CFM)</label>
+                            <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded font-mono" id="cfm-display">1000 CFM</span>
+                        </div>
+                        <input type="range" id="cfm-slider" min="50" max="5000" step="10" value="1000" class="mb-4" oninput="updateCalculations()">
+                        <div class="flex gap-2">
+                            <button onclick="adjustCFM(-50)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded text-slate-600 text-sm">-50</button>
+                            <input type="number" id="cfm-input" value="1000" class="flex-1 bg-slate-50 border border-slate-300 rounded px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="syncSlider(this.value)">
+                            <button onclick="adjustCFM(50)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded text-slate-600 text-sm">+50</button>
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-100">
+
+                    <!-- Friction Rate -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-sm font-medium text-slate-700 flex items-center gap-1">
+                                Friction Rate
+                                <span class="text-slate-400 cursor-help" title="Head loss per 100 feet of ductwork. Standard defaults: 0.1 for Supply, 0.08 for Return (Res)."><i class="fa-regular fa-circle-question"></i></span>
+                            </label>
+                            <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded font-mono">IWC/100'</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <button onclick="setFriction(0.08)" class="text-xs bg-slate-100 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 border border-transparent px-2 py-1 rounded transition-colors" title="Standard Return">0.08</button>
+                            <button onclick="setFriction(0.1)" class="text-xs bg-slate-100 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 border border-transparent px-2 py-1 rounded transition-colors" title="Standard Supply">0.10</button>
+                            <input type="number" id="friction-input" value="0.1" step="0.01" class="flex-1 bg-slate-50 border border-slate-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-right" oninput="updateCalculations()">
+                        </div>
+                    </div>
+
+                    <!-- Material -->
+                    <div>
+                        <label class="text-sm font-medium text-slate-700 mb-2 block">Duct Material</label>
+                        <select id="material-select" class="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" onchange="updateCalculations()">
+                            <option value="1.0">Galvanized Steel (Standard)</option>
+                            <option value="1.4">Flex Duct (Vinyl Core)</option>
+                            <option value="1.15">Fiberglass Duct Board</option>
+                            <option value="1.05">Spiral Pipe</option>
+                            <option value="3.0">Concrete</option>
+                        </select>
+                        <p class="text-xs text-slate-500 mt-1.5" id="material-desc">Standard roughness factor applied.</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- RESULTS COLUMN -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- Main Result: Round -->
+                <div class="bg-blue-600 rounded-xl shadow-lg shadow-blue-200 text-white p-6 relative overflow-hidden">
+                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-blue-500 rounded-full opacity-30 blur-2xl"></div>
+                    
+                    <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
+                        <div class="text-center md:text-left">
+                            <p class="text-blue-100 text-sm font-medium mb-1">Recommended Round Size</p>
+                            <div class="flex items-baseline justify-center md:justify-start gap-2">
+                                <h2 class="text-5xl font-bold tracking-tight" id="result-diameter">14"</h2>
+                                <span class="text-blue-200 font-medium">Diameter</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Velocity Gauge Mini -->
+                        <div class="bg-blue-800/50 rounded-lg p-4 backdrop-blur-sm border border-blue-500/30 w-full md:w-auto min-w-[200px]">
+                            <div class="flex justify-between items-end mb-1">
+                                <span class="text-xs text-blue-200">Velocity</span>
+                                <span class="text-xl font-bold font-mono" id="result-velocity">980</span>
+                            </div>
+                            <div class="w-full bg-blue-900/50 rounded-full h-1.5 mb-2 overflow-hidden">
+                                <div id="velocity-bar" class="bg-green-400 h-full rounded-full transition-all duration-500" style="width: 50%"></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-blue-300">
+                                <span>FPM</span>
+                                <span id="velocity-status">Optimal</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Save Calculation Button -->
+                    <div class="absolute bottom-4 right-4 z-20">
+                         <button id="save-btn" class="bg-white/20 hover:bg-white/30 text-white text-xs font-semibold py-1.5 px-3 rounded-lg backdrop-blur-md transition-colors flex items-center gap-2 hidden">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Save
+                         </button>
+                    </div>
+                </div>
+
+                <!-- Warnings Container -->
+                <div id="warning-container" class="hidden bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3 items-start">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-500 mt-1"></i>
+                    <div>
+                        <h4 class="text-sm font-bold text-amber-800">Velocity Warning</h4>
+                        <p class="text-sm text-amber-700 mt-1" id="warning-text">Velocity exceeds Manual D recommendations for Supply Trunks.</p>
+                    </div>
+                </div>
+
+                <!-- Rectangular Converter -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="font-semibold text-slate-800 flex items-center gap-2">
+                            <i class="fa-regular fa-square text-blue-500"></i> Rectangular Sizing
+                        </h2>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">Equivalent Friction</span>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row items-center gap-8">
+                        <!-- Canvas Visualization -->
+                        <div class="relative w-48 h-32 flex items-center justify-center bg-slate-50 rounded border border-slate-200">
+                            <div id="rect-visual" class="border-2 border-slate-400 bg-slate-200 transition-all duration-300" style="width: 100px; height: 60px;"></div>
+                            <!-- Dimensions Labels -->
+                            <span class="absolute -bottom-6 text-sm font-mono text-slate-600" id="visual-width-label">W</span>
+                            <span class="absolute -left-6 text-sm font-mono text-slate-600 rotate-270" id="visual-height-label">H</span>
+                        </div>
+
+                        <!-- Inputs -->
+                        <div class="flex-1 w-full grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">Side 1 (Input)</label>
+                                <div class="relative">
+                                    <input type="number" id="rect-side-1" value="8" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-bold focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="calculateRectangular()">
+                                    <span class="absolute right-3 top-2.5 text-slate-400 text-sm">in</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">Side 2 (Result)</label>
+                                <div class="relative">
+                                    <input type="text" id="rect-side-2" readonly class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold cursor-not-allowed">
+                                    <span class="absolute right-3 top-2.5 text-slate-400 text-sm">in</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Saved History & Reference Container -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- History (Shows when logged in) -->
+                    <div id="history-card" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hidden">
+                        <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+                            <h3 class="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                                <i class="fa-solid fa-clock-rotate-left text-blue-500"></i> Saved History
+                            </h3>
+                        </div>
+                        <div class="max-h-60 overflow-y-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-white text-slate-500 sticky top-0">
+                                    <tr>
+                                        <th class="px-4 py-2 font-medium">Specs</th>
+                                        <th class="px-4 py-2 font-medium text-right">Size</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100" id="history-table-body">
+                                    <!-- Populated by JS -->
+                                    <tr class="text-slate-400 text-center"><td colspan="2" class="py-4">No saved calculations</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Reference Table -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="bg-slate-50 px-6 py-3 border-b border-slate-200 flex justify-between items-center">
+                            <h3 class="text-sm font-semibold text-slate-700">Ref: Max Velocities</h3>
+                            <span id="ref-badge" class="text-xs font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-700">Manual D</span>
+                        </div>
+                        <div class="p-0">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-white text-slate-500">
+                                    <tr>
+                                        <th class="px-6 py-3 font-medium">Use</th>
+                                        <th class="px-6 py-3 font-medium text-right">Limit</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100" id="ref-table-body">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="max-w-6xl mx-auto px-4 py-8 text-center text-slate-400 text-sm">
+        <p>&copy; 2023 Pro Ductulator. Calculations based on standard ASHRAE formulas.</p>
+    </footer>
+
+    <!-- Firebase Integration -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyAipyz-skhePzlqzLQrLEdJK_uCdmPk0l0",
+          authDomain: "ductulator-479821.firebaseapp.com",
+          projectId: "ductulator-479821",
+          storageBucket: "ductulator-479821.firebasestorage.app",
+          messagingSenderId: "72251791418",
+          appId: "1:72251791418:web:d3fce2506fd8bdaaadfd03",
+          measurementId: "G-QV17MDK105"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        // --- AUTH Logic ---
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const userProfile = document.getElementById('user-profile');
+        const saveBtn = document.getElementById('save-btn');
+        const historyCard = document.getElementById('history-card');
+
+        // Login
+        loginBtn.addEventListener('click', () => {
+            signInWithPopup(auth, provider)
+            .catch((error) => {
+                console.error("Login Failed", error);
+                alert("Login failed: " + error.message);
+            });
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth);
+        });
+
+        let currentUser = null;
+        let unsubscribeHistory = null;
+
+        // Auth State Observer
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                // UI: Show Logged In State
+                loginBtn.classList.add('hidden');
+                userProfile.classList.remove('hidden');
+                saveBtn.classList.remove('hidden');
+                historyCard.classList.remove('hidden');
+                
+                document.getElementById('user-name').innerText = user.displayName;
+                document.getElementById('user-avatar').src = user.photoURL;
+
+                // Load History
+                loadHistory(user.uid);
+            } else {
+                // UI: Show Logged Out State
+                loginBtn.classList.remove('hidden');
+                userProfile.classList.add('hidden');
+                saveBtn.classList.add('hidden');
+                historyCard.classList.add('hidden');
+
+                // Detach listener
+                if(unsubscribeHistory) unsubscribeHistory();
+            }
+        });
+
+        // --- DATABASE Logic ---
+        
+        // Save Functionality
+        saveBtn.addEventListener('click', async () => {
+            if(!currentUser) return;
+            
+            // Get current calculation state from the DOM/Global State
+            const state = window.getDuctState(); // We will define this helper
+            
+            try {
+                saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+                
+                await addDoc(collection(db, "users", currentUser.uid, "calculations"), {
+                    cfm: state.cfm,
+                    friction: state.friction,
+                    material: state.materialName,
+                    diameter: state.diameter,
+                    velocity: state.velocity,
+                    mode: state.mode,
+                    timestamp: serverTimestamp()
+                });
+
+                // Reset Button Text
+                setTimeout(() => {
+                    saveBtn.innerHTML = '<i class="fa-solid fa-check"></i> Saved';
+                    setTimeout(() => {
+                        saveBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Save';
+                    }, 2000);
+                }, 500);
+
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                saveBtn.innerHTML = 'Error';
+            }
+        });
+
+        // Load History
+        function loadHistory(uid) {
+            const q = query(collection(db, "users", uid, "calculations"), orderBy("timestamp", "desc"));
+            
+            unsubscribeHistory = onSnapshot(q, (querySnapshot) => {
+                const tbody = document.getElementById('history-table-body');
+                tbody.innerHTML = '';
+
+                if(querySnapshot.empty) {
+                     tbody.innerHTML = '<tr class="text-slate-400 text-center"><td colspan="2" class="py-4">No saved calculations</td></tr>';
+                     return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const tr = document.createElement('tr');
+                    // Format nice row
+                    tr.innerHTML = `
+                        <td class="px-4 py-2">
+                            <div class="font-medium text-slate-700">${data.cfm} CFM</div>
+                            <div class="text-xs text-slate-500">${data.material} • ${data.friction} FR</div>
+                        </td>
+                        <td class="px-4 py-2 text-right">
+                            <div class="font-bold text-blue-600">${data.diameter}"</div>
+                            <div class="text-xs text-slate-400">${data.velocity} FPM</div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+        }
+
+    </script>
+
+    <script>
+        // --- APP LOGIC (Global Scope) ---
+        // We keep this separate from the module so onclick handlers in HTML work easily.
+        
+        // State
+        let state = {
+            mode: 'D', // 'D' for Manual D (Res), 'N' for Manual N (Comm)
+            cfm: 1000,
+            friction: 0.1,
+            materialFactor: 1.0,
+            materialName: 'Galvanized Steel',
+            rectInputSide: 8,
+            diameter: 14,
+            velocity: 980
+        };
+
+        // Reference Data
+        const references = {
+            'D': [
+                { name: 'Supply Trunk', limit: 900 },
+                { name: 'Supply Branch', limit: 700 },
+                { name: 'Return Trunk', limit: 700 },
+                { name: 'Return Branch', limit: 600 }
+            ],
+            'N': [
+                { name: 'Main (Comm)', limit: 1500 },
+                { name: 'Branch (Comm)', limit: 1000 },
+                { name: 'Return (Comm)', limit: 1200 },
+                { name: 'Industrial', limit: 2500 }
+            ]
+        };
+
+        // Helper for Module to access State
+        window.getDuctState = function() {
+            return state;
+        };
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            setMode('D');
+            updateCalculations();
+        });
+
+        // Mode Switching
+        window.setMode = function(mode) {
+            state.mode = mode;
+            
+            // UI Updates
+            const btnD = document.getElementById('btn-mode-d');
+            const btnN = document.getElementById('btn-mode-n');
+            const activeClass = "bg-blue-600 text-white shadow-md font-medium hover:bg-blue-700 ring-2 ring-offset-2 ring-blue-600";
+            const inactiveClass = "bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900";
+
+            if (mode === 'D') {
+                btnD.className = `w-full ${activeClass}`;
+                btnN.className = `w-full ${inactiveClass}`;
+                document.getElementById('ref-badge').innerText = "Manual D";
+                document.getElementById('ref-badge').className = "text-xs font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-700";
+            } else {
+                btnN.className = `w-full ${activeClass}`;
+                btnD.className = `w-full ${inactiveClass}`;
+                document.getElementById('ref-badge').innerText = "Manual N";
+                document.getElementById('ref-badge').className = "text-xs font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-700";
+            }
+
+            updateReferenceTable();
+            updateCalculations(); 
+        }
+
+        window.updateReferenceTable = function() {
+            const tbody = document.getElementById('ref-table-body');
+            tbody.innerHTML = '';
+            references[state.mode].forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-6 py-2 text-slate-700">${row.name}</td>
+                    <td class="px-6 py-2 text-right font-mono text-slate-600">${row.limit} FPM</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Input Handling
+        window.syncSlider = function(val) {
+            document.getElementById('cfm-slider').value = val;
+            state.cfm = parseInt(val) || 0;
+            updateDisplay();
+        }
+
+        window.adjustCFM = function(delta) {
+            let newVal = parseInt(document.getElementById('cfm-input').value) + delta;
+            if (newVal < 0) newVal = 0;
+            document.getElementById('cfm-input').value = newVal;
+            syncSlider(newVal);
+        }
+
+        window.setFriction = function(val) {
+            document.getElementById('friction-input').value = val;
+            updateCalculations();
+        }
+
+        function updateDisplay() {
+            document.getElementById('cfm-display').innerText = `${state.cfm} CFM`;
+            updateCalculations();
+        }
+
+        // Core Calculation Engine
+        window.updateCalculations = function() {
+            // 1. Gather Inputs
+            state.cfm = parseFloat(document.getElementById('cfm-input').value) || 0;
+            state.friction = parseFloat(document.getElementById('friction-input').value) || 0.1;
+            
+            const matSelect = document.getElementById('material-select');
+            state.materialFactor = parseFloat(matSelect.value) || 1.0;
+            state.materialName = matSelect.options[matSelect.selectedIndex].text.split('(')[0].trim();
+
+            if (state.cfm <= 0 || state.friction <= 0) return;
+
+            // 2. Calculate Round Diameter
+            const numerator = state.materialFactor * 0.109136 * Math.pow(state.cfm, 1.9);
+            const rawDiameter = Math.pow( numerator / state.friction, 1/5.02 );
+
+            // 3. Rounding
+            const displayDiameter = Math.round(rawDiameter); 
+            const exactDiameter = rawDiameter;
+            state.diameter = displayDiameter;
+
+            // 4. Calculate Velocity
+            const areaSqFt = Math.PI * Math.pow(exactDiameter / 24, 2);
+            const velocity = Math.round(state.cfm / areaSqFt);
+            state.velocity = velocity;
+
+            // 5. Update UI
+            document.getElementById('result-diameter').innerText = `${displayDiameter}"`;
+            document.getElementById('result-velocity').innerText = velocity;
+
+            // 6. Update Gauge & Warnings
+            updateVelocityGauge(velocity);
+            
+            // 7. Update Rectangular Calc
+            calculateRectangular(exactDiameter);
+        }
+
+        function updateVelocityGauge(velocity) {
+            const limits = references[state.mode];
+            const maxLimit = limits[limits.length-1].limit; 
+            const gaugeMax = maxLimit * 1.2; 
+            
+            const pct = Math.min((velocity / gaugeMax) * 100, 100);
+            const bar = document.getElementById('velocity-bar');
+            const status = document.getElementById('velocity-status');
+
+            bar.style.width = `${pct}%`;
+
+            let isHigh = false;
+            let warningMsg = "";
+
+            if (state.mode === 'D') {
+                if (velocity > 900) {
+                    bar.className = "h-full rounded-full transition-all duration-500 bg-red-500";
+                    status.innerText = "Too High (Man. D)";
+                    status.className = "text-red-300 font-bold";
+                    isHigh = true;
+                    warningMsg = `Velocity (${velocity} FPM) exceeds Manual D Trunk limit (900 FPM). Increase Duct Size or reduce Friction Rate.`;
+                } else if (velocity > 700) {
+                    bar.className = "h-full rounded-full transition-all duration-500 bg-yellow-400";
+                    status.innerText = "Trunk Range";
+                    status.className = "text-yellow-300";
+                } else {
+                    bar.className = "h-full rounded-full transition-all duration-500 bg-green-400";
+                    status.innerText = "Optimal";
+                    status.className = "text-green-300";
+                }
+            } else {
+                // Commercial
+                if (velocity > 1800) {
+                     bar.className = "h-full rounded-full transition-all duration-500 bg-orange-500";
+                     status.innerText = "Industrial/High";
+                     status.className = "text-orange-300";
+                } else {
+                     bar.className = "h-full rounded-full transition-all duration-500 bg-blue-400";
+                     status.innerText = "Normal (Man. N)";
+                     status.className = "text-blue-300";
+                }
+            }
+
+            const warnBox = document.getElementById('warning-container');
+            if (isHigh) {
+                warnBox.classList.remove('hidden');
+                document.getElementById('warning-text').innerText = warningMsg;
+            } else {
+                warnBox.classList.add('hidden');
+            }
+        }
+
+        window.calculateRectangular = function(passedDiameter) {
+            let diameter = passedDiameter;
+            if (!diameter) {
+                // Fallback recalculation if triggered by direct input change
+                const numerator = state.materialFactor * 0.109136 * Math.pow(state.cfm, 1.9);
+                diameter = Math.pow( numerator / state.friction, 1/5.02 );
+            }
+
+            const inputSide = parseFloat(document.getElementById('rect-side-1').value) || 0;
+            if (inputSide <= 0) return;
+
+            let b = diameter; 
+            for(let i=0; i<10; i++) {
+                let deq = 1.30 * Math.pow((inputSide * b), 0.625) / Math.pow((inputSide + b), 0.25);
+                if (Math.abs(deq - diameter) < 0.1) break;
+                b = b * (diameter / deq); 
+            }
+
+            const resultSide = Math.round(b);
+            document.getElementById('rect-side-2').value = resultSide;
+            document.getElementById('visual-width-label').innerText = resultSide + '"';
+            document.getElementById('visual-height-label').innerText = inputSide + '"';
+
+            const vis = document.getElementById('rect-visual');
+            vis.style.width = (resultSide > inputSide ? 120 : 120 * (resultSide/inputSide)) + 'px';
+            vis.style.height = (inputSide > resultSide ? 80 : 80 * (inputSide/resultSide)) + 'px';
+        }
+
+    </script>
+</body>
+</html>
